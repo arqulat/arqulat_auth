@@ -1,4 +1,4 @@
-package in.neuarc.auth;
+package com.arqulat.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
