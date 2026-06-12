@@ -1,0 +1,102 @@
+/* Minimal structural styles for authentication frontend */
+
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background-color: #f8f9fa; /* slightly off-white for contrast */
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+.auth-title {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.input-field {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.primary-btn {
+    padding: 0.75rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s;
+}
+
+.primary-btn:hover {
+    background-color: #0056b3;
+}
+
+.google-btn {
+    padding: 0.75rem;
+    font-size: 1rem;
+    background-color: #db4437;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s;
+}
+
+.google-btn:hover {
+    background-color: #c23321;
+}
+
+.auth-link {
+    text-align: center;
+    color: #007bff;
+    text-decoration: none;
+    margin-top: 1rem;
+    display: block;
+    font-size: 0.9rem;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #d9534f;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    background-color: #fdf2f2;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+}
