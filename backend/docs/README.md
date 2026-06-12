@@ -20,6 +20,7 @@
 | [Security Architecture](./security/architecture.md) | Cookie config, JWT specs, CORS, password hashing, filter chain |
 | [Error Handling](./api/error-handling.md) | Exception-to-HTTP-status mapping and response formats |
 | [Running Locally](./setup/local-setup.md) | Step-by-step guide to run the backend on your machine |
+| [Testing Guide](./testing/testing-guide.md) | Explanation of unit/integration tests, H2 database usage, and logic |
 | [Known Issues & TODOs](./known-issues.md) | Tracked issues organized by severity |
 
 ---
