@@ -30,8 +30,8 @@ Tracked issues organized by severity. Updated as issues are resolved.
 | 6 | **Registration doesn't auto-login** | User must call `/login` after `/register` to get a JWT cookie. | ⏳ By design for now |
 | 7 | **`SessionCreationPolicy.IF_REQUIRED`** | Mixes stateful and stateless patterns. Should be `STATELESS` with stateless OAuth2 state storage. when changing between arqulat to google oauth spring stores a variable `state` . custom class (an AuthorizationRequestRepository) | ⏳ Required for OAuth2 flow. when arqulat expanded to multiple server(1000's of users login/sec) this will be problem |
 | 8 | **`show-sql=true`** | Floods logs with SQL in production, potentially exposing user data in query parameters. | ⏳ Dev only — disable for production |
-| 9 | **`AppUserDetails` missing `serialVersionUID`** | Will break deserialization if the class changes and sessions are serialized. | ⏳ TODO |
-| 10 | **Google-only users cause 500 on `/login`** | `BCryptPasswordEncoder.matches(raw, null)` throws `IllegalArgumentException` instead of returning 401. | ⏳ TODO |
+| 9 | ~~**`AppUserDetails` missing `serialVersionUID`**~~ | ~~Will break deserialization if the class changes and sessions are serialized.~~ | ✅ Resolved — Added serialVersionUID |
+| 10 | ~~**Google-only users cause 500 on `/login`**~~ | ~~`BCryptPasswordEncoder.matches(raw, null)` throws `IllegalArgumentException` instead of returning 401.~~ | ✅ Resolved — Return empty string instead of null for password in AppUserDetails |
 
 ---
 
@@ -53,3 +53,5 @@ Tracked issues organized by severity. Updated as issues are resolved.
 |---|---|---|
 | 2026-06-11 | — | Password validation added (`@Pattern` regex on `RegisterRequest.password`) |
 | 2026-06-12 | 3 | Implemented database-backed JWT blacklist using JTI claims to ensure tokens are securely invalidated on logout. |
+| 2026-06-12 | 9 | Added `serialVersionUID` to `AppUserDetails` class. |
+| 2026-06-12 | 10 | Updated `AppUserDetails.getPassword()` to return empty string instead of null, preventing `IllegalArgumentException` in `BCryptPasswordEncoder`. |
