@@ -19,7 +19,7 @@ Tracked issues organized by severity. Updated as issues are resolved.
 |---|---|---|---|
 | 3 | ~~**JWTs not revoked on logout**~~ | ~~Clearing the cookie doesn't invalidate the token server-side. Stolen tokens remain valid for up to 7 days.~~ | ✅ Resolved — Implemented database token blacklist storing JTIs |
 | 4 | **No rate limiting** | Auth endpoints are vulnerable to brute-force and registration flooding. | ⏳ TODO — Add Bucket4j or API gateway rate limiting |
-| 5 | **CSRF disabled with cookie-based auth** | `SameSite=Lax` provides partial protection but doesn't cover all attack vectors. | ⏳ Accepted risk with SameSite |
+| 5 | **CSRF disabled with cookie-based auth** | Because browsers automatically attach cookies to requests, a malicious "cross-site" (like `evil-website.com`) can secretly forge requests to our API, making the server think the user clicked it. Our `SameSite=Lax` setting blocks this auto-attaching behavior on modern browsers, but isn't a 100% fix for older browsers or subdomain attacks. | ⏳ Accepted risk (SameSite is generally "good enough" for standard apps without the hassle of full CSRF tokens).|
 
 ---
 
