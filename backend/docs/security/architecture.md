@@ -36,6 +36,7 @@ All authentication state is carried in the `arqulat_session` cookie.
 | **Subject (`sub`)** | User's email address |
 | **Issued At (`iat`)** | Current timestamp |
 | **Expiration (`exp`)** | Current timestamp + 7 days (configurable via `JWT_EXPIRATION`) |
+| **JWT ID (`jti`)** | Randomly generated UUID v4 (used for token revocation) |
 | **Storage** | `arqulat_session` HttpOnly cookie |
 | **Signing Key** | Base64-decoded `JWT_SECRET` → HMAC-SHA key |
 
@@ -46,8 +47,8 @@ Generate                    Validate                     Expire
    │                           │                            │
    │ JwtService.generateToken()│ JwtAuthFilter reads cookie │ After 7 days
    │ → sign with HMAC-SHA256   │ → extractUserName()        │ → isTokenExpired() = true
-   │ → set sub, iat, exp       │ → isTokenValid()           │ → user must re-login
-   │ → return compact JWT      │ → set SecurityContext       │
+   │ → set sub, iat, exp, jti  │ → isTokenValid()           │ → user must re-login
+   │ → return compact JWT      │ → set SecurityContext      │
    │                           │                            │
 ```
 
@@ -57,6 +58,7 @@ Generate                    Validate                     Expire
 
 1. **Username match** — The `sub` claim in the JWT must equal `userDetails.getUsername()` (the email).
 2. **Expiry check** — The `exp` claim must be in the future.
+3. **Blacklist check** — The `jti` claim must **not** exist in the `auth.blacklisted_tokens` database table (ensures tokens revoked on logout are blocked).
 
 ---
 
