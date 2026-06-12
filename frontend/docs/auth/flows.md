@@ -4,14 +4,16 @@ The frontend handles two distinct authentication paradigms: OAuth2 and Local Dat
 
 ## 1. Google OAuth2 Flow
 - Triggered from `MainLogin.jsx`.
+- **Pre-action**: The frontend captures the `?redirect_to=` parameter (if valid) and stores it in `sessionStorage` via `AuthContext.jsx`.
 - **Action**: Clicking "Sign in with Google" triggers a hard browser redirect to `http://localhost:8080/oauth2/authorization/google`.
-- **Why**: This delegates the entire OAuth handshake to the Spring Boot backend. The backend manages the redirect to Google, callback validation, and setting the HTTPOnly cookie before redirecting the user to `loom.arqulat.com`.
+- **Why**: This delegates the entire OAuth handshake to the Spring Boot backend. The backend manages the redirect to Google, callback validation, and sets the HTTPOnly cookie. 
+- **Return Trip**: The backend bounces the user back to the frontend. `AuthContext.jsx` runs, verifies the session, and seamlessly redirects the user to the saved `redirect_to` URL (or `https://arqulat.com`).
 
 ## 2. Local Login & Registration Flow
 - Triggered from `LocalLogin.jsx` and `LocalRegister.jsx`.
 - **Action**: User submits email and password. React state captures this data and passes it to Axios.
 - **API Call**: `POST /api/v1/auth/login` or `/api/v1/auth/register`.
-- **Result**: Upon `200 OK`, the backend has successfully set the `arqulat_session` cookie. The frontend handles the redirect via `window.location.href = 'https://loom.arqulat.com'`.
+- **Result**: Upon `200 OK`, the backend has successfully set the `arqulat_session` cookie. The frontend dynamically redirects the user to the saved `redirect_to` target (or `https://arqulat.com`).
 
 ---
 
