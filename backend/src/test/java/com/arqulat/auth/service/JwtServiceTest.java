@@ -1,6 +1,7 @@
 package com.arqulat.auth.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.Date;
@@ -15,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.arqulat.auth.repository.BlacklistedTokenRepository;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,6 +30,9 @@ class JwtServiceTest {
 
     @Mock
     private UserDetails userDetails;
+
+    @Mock
+    private BlacklistedTokenRepository blacklistedTokenRepository;
 
     private final String SECRET_KEY = "dGVzdFNlY3JldEtleVRoYXRJc0xvbmdFbm91Z2hGb3JIZW0="; // "testSecretKeyThatIsLongEnoughForHem"
     private final long EXPIRATION = 3600000; // 1 hour
@@ -55,6 +61,7 @@ class JwtServiceTest {
     void isTokenValid_shouldReturnTrueForValidToken() {
         // Arrange
         when(userDetails.getUsername()).thenReturn("test@example.com");
+        when(blacklistedTokenRepository.existsByJti(anyString())).thenReturn(false);
         String token = jwtService.generateToken(userDetails);
 
         // Act

@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.arqulat.auth.repository.BlacklistedTokenRepository;
 
 @Service
 public class JwtService {
@@ -26,6 +29,9 @@ public class JwtService {
 	@Value("${application.security.jwt.expiration}")
 	private long jwtExpiration;
 	
+	@Autowired
+	private BlacklistedTokenRepository blacklistedTokenRepository;
+	
 	public String generateToken(UserDetails userDetails) {
 		return generateToken(new HashMap<>(), userDetails);
 	}
@@ -35,6 +41,7 @@ public class JwtService {
 		return Jwts.builder()
 				.claims(extraClaims)
 				.subject(userDetails.getUsername())
+				.id(UUID.randomUUID().toString())
 				.issuedAt(new Date(System.currentTimeMillis()))
 				.expiration(new Date(System.currentTimeMillis() + jwtExpiration))
 				.signWith(getSignKey())
@@ -63,6 +70,14 @@ public class JwtService {
 		return extractClaims(jwtToken, Claims::getSubject);
 	}
 	
+	public String extractJti(String jwtToken) {
+		return extractClaims(jwtToken, Claims::getId);
+	}
+	
+	public Date extractExpiration(String jwtToken) {
+		return extractClaims(jwtToken, Claims::getExpiration);
+	}
+	
 	public boolean isTokenExpired(String jwtToken) {
 		Date expireDate = extractClaims(jwtToken, Claims::getExpiration);
 		return expireDate.before(new Date());
@@ -70,6 +85,12 @@ public class JwtService {
 	
 	public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUserName(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token) && !isTokenBlacklisted(token);
+    }
+    
+    public boolean isTokenBlacklisted(String jwtToken) {
+        String jti = extractJti(jwtToken);
+        if (jti == null) return false;
+        return blacklistedTokenRepository.existsByJti(jti);
     }
 }
