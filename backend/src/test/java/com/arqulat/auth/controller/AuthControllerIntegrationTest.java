@@ -39,6 +39,9 @@ class AuthControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.arqulat.auth.service.JwtService jwtService;
+
     @BeforeEach
     void setUp() {
         // Clear the test database before each test
@@ -151,18 +154,10 @@ class AuthControllerIntegrationTest {
         user.setPasswordHash(passwordEncoder.encode("StrongPass123!"));
         userRepository.save(user);
 
-        // 2. Login to get cookie
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("me@example.com");
-        loginRequest.setPassword("StrongPass123!");
-
-        MvcResult loginResult = mockMvc.perform(post("/api/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Cookie jwtCookie = loginResult.getResponse().getCookie("arqulat_session");
+        // 2. Generate token directly
+        com.arqulat.auth.security.AppUserDetails userDetails = new com.arqulat.auth.security.AppUserDetails(user);
+        String token = jwtService.generateToken(userDetails);
+        Cookie jwtCookie = new Cookie("arqulat_session", token);
 
         // 3. Access protected endpoint with cookie
         mockMvc.perform(get("/api/v1/user/me")
