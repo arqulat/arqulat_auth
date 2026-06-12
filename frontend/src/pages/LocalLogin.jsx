@@ -17,8 +17,10 @@ const LocalLogin = () => {
                 email,
                 password
             });
-            // On success, redirect to main app
-            window.location.href = 'https://loom.arqulat.com';
+            // On success, execute dynamic redirect with fallback
+            const target = sessionStorage.getItem('redirect_to') || 'https://arqulat.com';
+            sessionStorage.removeItem('redirect_to');
+            window.location.href = target;
         } catch (err) {
             if (err.response?.status === 400 && typeof err.response?.data === 'object' && !err.response?.data?.message) {
                 const errorMessages = Object.values(err.response.data).join(' | ');
