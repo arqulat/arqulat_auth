@@ -140,10 +140,9 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void getCurrentUser_shouldRedirectToGoogle_WhenNoCookieProvided() throws Exception {
+    void getCurrentUser_shouldReturn401_WhenNoCookieProvided() throws Exception {
         mockMvc.perform(get("/api/v1/user/me"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/oauth2/authorization/google"));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
