@@ -128,14 +128,14 @@
     justify-content: center;
     width: 56px;
     height: 56px;
-    border-radius: 18px;
-    background: var(--accent-gradient);
-    color: white;
     margin-bottom: 1.25rem;
-    box-shadow: 
-        0 8px 24px -6px rgba(0, 240, 255, 0.4),
-        0 0 20px rgba(0, 240, 255, 0.2);
     animation: logo-float 4s ease-in-out infinite;
+}
+
+.brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 @keyframes logo-float {
