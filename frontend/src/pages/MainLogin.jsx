@@ -32,11 +32,11 @@ const MainLogin = () => {
                         Continue with Google
                     </button>
 
-                    <div className="divider">or</div>
+                    {/* <div className="divider">or</div>
 
                     <Link to="/login" className="primary-btn" style={{ textDecoration: 'none' }}>
                         Sign in with Email
-                    </Link>
+                    </Link> */}
 
 
                 </div>
