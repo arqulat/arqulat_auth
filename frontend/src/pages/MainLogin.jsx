@@ -12,10 +12,7 @@ const MainLogin = () => {
             <div className="auth-card">
                 <div className="auth-header">
                     <div className="brand-logo">
-                        {/* Beautiful Infinite-like loop logo */}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
+                        <img src="/main logo.png" alt="Arqulat Logo" />
                     </div>
                     <h1 className="auth-title">Welcome to Arqulat</h1>
                     <p className="auth-subtitle">Secure gateway to access your dashboard</p>
