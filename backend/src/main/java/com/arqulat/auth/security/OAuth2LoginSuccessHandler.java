@@ -20,7 +20,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 	
 	@Autowired
@@ -48,9 +51,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		String email = oAuth2User.getAttribute("email");
 		String googleId = oAuth2User.getAttribute("sub");
 		String name = oAuth2User.getAttribute("name");
+		
+		log.info("OAuth2 authentication success for email: {}, googleId: {}", email, googleId);
 
 		// Guard against missing required OAuth2 attributes
 		if (email == null || googleId == null) {
+			log.error("Missing required OAuth2 attributes: email={}, googleId={}", email, googleId);
 			getRedirectStrategy().sendRedirect(request, response, frontendUrl + "?error=oauth2_missing_attributes");
 			return;
 		}
@@ -61,12 +67,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		User user = userRepository.findByGoogleId(googleId)
 				.orElseGet(() -> userRepository.findByEmail(email)
 						.map(existingUser -> {
+							log.info("Linking Google ID to existing user account for email: {}", email);
 							// Link the Google ID to the existing email/password account
 							existingUser.setGoogleId(googleId);
 							if (existingUser.getName() == null) existingUser.setName(name);
 							return userRepository.save(existingUser);
 						})
 						.orElseGet(() -> {
+							log.info("Creating new user account for email: {}", email);
 							User newUser = new User();
 							newUser.setEmail(email);
 							newUser.setGoogleId(googleId);
@@ -87,6 +95,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 				.build();
 		
 		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+		
+		// Invalidate the session to enforce stateless JWT authentication
+		if (request.getSession(false) != null) {
+			request.getSession(false).invalidate();
+		}
+		org.springframework.security.core.context.SecurityContextHolder.clearContext();
 		
 		getRedirectStrategy().sendRedirect(request, response, frontendUrl);
 	}
