@@ -27,7 +27,10 @@ import com.arqulat.auth.repository.BlacklistedTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AuthService {
 
 	@Value("${app.cookie.domain}")
@@ -86,13 +89,18 @@ public class AuthService {
 	}
 
 	public AuthResponse getCurrentUser(String email) {
+		log.debug("Looking up user by email: {}", email);
 		User user = userRepository.findByEmail(email)
-				.orElseThrow(() ->  new ResourceNotFoundException("User not found"));
+				.orElseThrow(() -> {
+					log.warn("User not found for email: {}", email);
+					return new ResourceNotFoundException("User not found");
+				});
 		
 		return new AuthResponse(user.getId(), user.getEmail(), user.getName());
 	}
 
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		log.debug("Initiating logout process, extracting cookies");
 		if (request.getCookies() != null) {
             Arrays.stream(request.getCookies())
                     .filter(cookie -> "arqulat_session".equals(cookie.getName()))
@@ -103,13 +111,14 @@ public class AuthService {
                             String jti = jwtService.extractJti(token);
                             Date expiration = jwtService.extractExpiration(token);
                             if (jti != null && expiration != null && !blacklistedTokenRepository.existsByJti(jti)) {
+                                log.info("Blacklisting JWT with JTI: {}", jti);
                                 BlacklistedToken blacklistedToken = new BlacklistedToken();
                                 blacklistedToken.setJti(jti);
                                 blacklistedToken.setExpiresAt(expiration);
                                 blacklistedTokenRepository.save(blacklistedToken);
                             }
                         } catch (Exception e) {
-                            // Token might already be expired or invalid, ignore
+                            log.warn("Error processing JWT during logout (might be expired already): {}", e.getMessage());
                         }
                     });
         }
