@@ -19,7 +19,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
@@ -46,10 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				jwtToken = authCookie.get().getValue();
 				try {
 					userName = jwtService.extractUserName(jwtToken);
+					log.debug("Successfully extracted username from JWT: {}", userName);
 				} catch (Exception e) {
+					log.warn("Failed to extract username from JWT: {}", e.getMessage());
 					// Token is expired, malformed, or invalid.
 					// We do nothing here; the user simply remains unauthenticated.
 				}
+			} else {
+				log.trace("No arqulat_session cookie found in request");
 			}
 		}
 
@@ -62,6 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						null, userDetails.getAuthorities());
 				token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(token);
+				log.debug("Authentication set in SecurityContext for user: {}", userName);
+			} else {
+				log.warn("JWT token is invalid for user: {}", userName);
 			}
 		}
 
