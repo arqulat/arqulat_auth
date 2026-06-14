@@ -164,7 +164,8 @@ If Google does not provide `email` or `sub` (unlikely but possible), the handler
 1. Wraps the `User` in `AppUserDetails`.
 2. Generates a JWT via `JwtService.generateToken()`.
 3. Sets the `arqulat_session` cookie (same attributes as login).
-4. **Redirects** the browser to `app.frontend.url`.
+4. **Invalidates** the temporary OAuth2 `JSESSIONID` session and clears the `SecurityContext` to ensure all subsequent API requests are entirely stateless and rely solely on the JWT.
+5. **Redirects** the browser to `app.frontend.url`.
 
 ---
 
