@@ -66,7 +66,7 @@ application.security.jwt.secret-key=dGVzdFNlY3JldEtleVRoYXRJc0xvbmdFbm91Z2hGb3JI
 ## 4. Key Takeaways from Our Implementation
 
 1. **Security-First Approach:** We tested the manual registration and login endpoints thoroughly. Once we confirmed they worked perfectly, we disabled them (`/* commented out */`). We did this to prevent a critical "pre-account takeover" vulnerability where an attacker registers an email before the real owner logs in via Google.
-2. **Handling OAuth Redirects:** When testing unauthorized access to secured endpoints (like `/api/v1/user/me`), we initially expected a standard `403 Forbidden` response. However, because we configured `oauth2Login()`, Spring Security intercepts the unauthorized request and issues a `302 Found` redirect to the Google Login page instead. The test was updated to correctly assert this behavior.
+2. **Handling API Authentication Errors:** Since this is an API, we configured `SecurityConfig` to return a `401 Unauthorized` response via `HttpStatusEntryPoint` when an unauthenticated request hits a secured endpoint (like `/api/v1/user/me`), rather than defaulting to a 302 redirect to the OAuth2 login page. The test `getCurrentUser_shouldReturn401_WhenNoCookieProvided` explicitly asserts this behavior.
 
 ---
 
