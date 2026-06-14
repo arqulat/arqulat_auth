@@ -19,7 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class AuthController {
 
 	@Autowired
@@ -39,11 +42,13 @@ public class AuthController {
 	
 	@GetMapping("/api/v1/user/me")
 	public ResponseEntity<AuthResponse> getCurrentUser(Principal principal) {
+		log.info("Fetching current user details for: {}", principal.getName());
 		return new ResponseEntity<>(authService.getCurrentUser(principal.getName()), HttpStatus.OK);
 	}
 	
 	@PostMapping("/api/v1/user/logout")
 	public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+		log.info("Processing logout request");
 		authService.logout(request, response);
 		return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
 	}
