@@ -75,7 +75,7 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-		corsConfiguration.setAllowedOriginPatterns(List.of("https://*.arqulat.com", "http://localhost:*"));
+		corsConfiguration.setAllowedOriginPatterns(List.of("https://*.arqulat.com", "https://arqulat.com", "http://localhost:*"));
 		corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
