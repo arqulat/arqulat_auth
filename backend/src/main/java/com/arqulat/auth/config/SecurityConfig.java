@@ -50,7 +50,7 @@ public class SecurityConfig {
 						.requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session
-						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
 				.oauth2Login(oauth -> oauth.successHandler(oAuth2LoginSuccessHandler))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

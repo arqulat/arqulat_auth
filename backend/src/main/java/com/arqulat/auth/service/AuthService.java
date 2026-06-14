@@ -122,7 +122,15 @@ public class AuthService {
                         }
                     });
         }
+		
+		// Delete the cookie
 		setJwtCookie(response, "", 0);
+		
+		// Ensure any lingering sessions (if created) are destroyed
+		if (request.getSession(false) != null) {
+			request.getSession(false).invalidate();
+		}
+		org.springframework.security.core.context.SecurityContextHolder.clearContext();
 	}
 	
 	private void setJwtCookie(HttpServletResponse response, String token, long maxAgeSeconds) {
