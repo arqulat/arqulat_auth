@@ -81,7 +81,9 @@ public class AuthService {
 		AppUserDetails userDetails = (AppUserDetails)authentication.getPrincipal();
 		User user = userDetails.getUser();
 		
-		String jwtToken = jwtService.generateToken(userDetails);
+		java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+		extraClaims.put("uid", user.getId().toString());
+		String jwtToken = jwtService.generateToken(extraClaims, userDetails);
 		
 		setJwtCookie(response, jwtToken, cookieMaxAge);
 		

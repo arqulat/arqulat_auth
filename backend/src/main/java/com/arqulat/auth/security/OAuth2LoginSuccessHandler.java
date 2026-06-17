@@ -83,7 +83,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 						}));
 		
 		AppUserDetails userDetails = new AppUserDetails(user);
-		String jwtToken = jwtService.generateToken(userDetails);
+		java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+		extraClaims.put("uid", user.getId().toString());
+		String jwtToken = jwtService.generateToken(extraClaims, userDetails);
 		
 		ResponseCookie cookie = ResponseCookie.from("arqulat_session", jwtToken)
 				.domain(cookieDomain)
