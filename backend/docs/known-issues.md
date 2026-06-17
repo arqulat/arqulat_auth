@@ -18,6 +18,7 @@ Tracked issues organized by severity. Updated as issues are resolved.
 | # | Issue | Details | Status |
 |---|---|---|---|
 | 3 | ~~**JWTs not revoked on logout**~~ | ~~Clearing the cookie doesn't invalidate the token server-side. Stolen tokens remain valid for up to 7 days.~~ | ✅ Resolved — Implemented database token blacklist storing JTIs |
+| 3.1 | ~~**Database Query on Every API Request**~~ | ~~`isTokenBlacklisted` queried PostgreSQL on every authenticated request, exhausting connections under load.~~ | ✅ Resolved — Integrated Redis for caching blacklisted tokens |
 | 4 | **No rate limiting** | Auth endpoints are vulnerable to brute-force and registration flooding. | ⏳ TODO — Add Bucket4j or API gateway rate limiting |
 | 5 | **CSRF disabled with cookie-based auth** | Because browsers automatically attach cookies to requests, a malicious "cross-site" (like `evil-website.com`) can secretly forge requests to our API, making the server think the user clicked it. Our `SameSite=Lax` setting blocks this auto-attaching behavior on modern browsers, but isn't a 100% fix for older browsers or subdomain attacks. | ⏳ Accepted risk (SameSite is generally "good enough" for standard apps without the hassle of full CSRF tokens).|
 
@@ -56,3 +57,4 @@ Tracked issues organized by severity. Updated as issues are resolved.
 | 2026-06-12 | 9 | Added `serialVersionUID` to `AppUserDetails` class. |
 | 2026-06-12 | 10 | Updated `AppUserDetails.getPassword()` to return empty string instead of null, preventing `IllegalArgumentException` in `BCryptPasswordEncoder`. |
 | 2026-06-12 | 2 | Implemented Flyway database migrations and switched `ddl-auto` to `validate` for production deployment. |
+| 2026-06-17 | 3.1 | Integrated Redis caching for the JWT blacklist to eliminate the synchronous database query bottleneck on every API request. |

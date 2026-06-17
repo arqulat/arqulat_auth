@@ -19,6 +19,8 @@ import io.jsonwebtoken.security.Keys;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.arqulat.auth.repository.BlacklistedTokenRepository;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class JwtService {
@@ -31,6 +33,9 @@ public class JwtService {
 	
 	@Autowired
 	private BlacklistedTokenRepository blacklistedTokenRepository;
+	
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 	
 	public String generateToken(UserDetails userDetails) {
 		return generateToken(new HashMap<>(), userDetails);
@@ -91,6 +96,26 @@ public class JwtService {
     public boolean isTokenBlacklisted(String jwtToken) {
         String jti = extractJti(jwtToken);
         if (jti == null) return false;
-        return blacklistedTokenRepository.existsByJti(jti);
+        
+        // 1. Check Redis (fast path)
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey("blacklist:jti:" + jti))) {
+            return true;
+        }
+        
+        // 2. Fallback to DB (slow path)
+        boolean isBlacklistedInDb = blacklistedTokenRepository.existsByJti(jti);
+        if (isBlacklistedInDb) {
+            // Backfill Redis
+            Date expiration = extractExpiration(jwtToken);
+            if (expiration != null) {
+                long ttl = expiration.getTime() - System.currentTimeMillis();
+                if (ttl > 0) {
+                    stringRedisTemplate.opsForValue().set("blacklist:jti:" + jti, "true", ttl, TimeUnit.MILLISECONDS);
+                }
+            }
+            return true;
+        }
+        
+        return false;
     }
 }

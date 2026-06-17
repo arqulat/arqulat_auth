@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Date;
 import com.arqulat.auth.model.BlacklistedToken;
 import com.arqulat.auth.repository.BlacklistedTokenRepository;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,6 +56,9 @@ public class AuthService {
 	
 	@Autowired
 	BlacklistedTokenRepository blacklistedTokenRepository;
+	
+	@Autowired
+	StringRedisTemplate stringRedisTemplate;
 	
 	public AuthResponse register(RegisterRequest request) {
 		if (userRepository.existsByEmail(request.getEmail())) {
@@ -118,6 +123,12 @@ public class AuthService {
                                 blacklistedToken.setJti(jti);
                                 blacklistedToken.setExpiresAt(expiration);
                                 blacklistedTokenRepository.save(blacklistedToken);
+                                
+                                // Cache in Redis
+                                long ttl = expiration.getTime() - System.currentTimeMillis();
+                                if (ttl > 0) {
+                                    stringRedisTemplate.opsForValue().set("blacklist:jti:" + jti, "true", ttl, TimeUnit.MILLISECONDS);
+                                }
                             }
                         } catch (Exception e) {
                             log.warn("Error processing JWT during logout (might be expired already): {}", e.getMessage());
