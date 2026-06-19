@@ -40,6 +40,9 @@ public class SecurityConfig {
 	@Autowired
 	OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+	@Autowired
+	private com.arqulat.auth.security.HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
@@ -52,7 +55,10 @@ public class SecurityConfig {
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
-				.oauth2Login(oauth -> oauth.successHandler(oAuth2LoginSuccessHandler))
+				.oauth2Login(oauth -> oauth
+						.authorizationEndpoint(authEndpoint -> authEndpoint
+								.authorizationRequestRepository(cookieAuthorizationRequestRepository))
+						.successHandler(oAuth2LoginSuccessHandler))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

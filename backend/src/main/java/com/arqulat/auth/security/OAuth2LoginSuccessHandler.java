@@ -32,6 +32,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 	@Autowired
 	JwtService jwtService;
 
+	@Autowired
+	private HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
+
 	@Value("${app.cookie.domain}")
 	private String cookieDomain;
 
@@ -104,7 +107,19 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		}
 		org.springframework.security.core.context.SecurityContextHolder.clearContext();
 		
-		getRedirectStrategy().sendRedirect(request, response, frontendUrl);
+		String targetUrl = frontendUrl;
+		java.util.Optional<jakarta.servlet.http.Cookie> redirectCookie = com.arqulat.auth.util.CookieUtils.getCookie(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME);
+		if (redirectCookie.isPresent() && redirectCookie.get().getValue() != null && !redirectCookie.get().getValue().isBlank()) {
+			String requestedRedirect = redirectCookie.get().getValue();
+			// Basic security check: ensure it belongs to arqulat.com or localhost
+			if (requestedRedirect.matches("https?://([a-zA-Z0-9-]+\\.)*arqulat\\.com.*") || requestedRedirect.startsWith("http://localhost:")) {
+				targetUrl = requestedRedirect;
+			}
+		}
+
+		cookieAuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+
+		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 }
 
