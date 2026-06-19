@@ -95,7 +95,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 				.path("/")
 				.httpOnly(true)
 				.secure(true)
-				.sameSite("None")
+				.sameSite("Lax")
 				.maxAge(cookieMaxAge) // 7 days by default
 				.build();
 		
@@ -112,12 +112,21 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		if (redirectCookie.isPresent() && redirectCookie.get().getValue() != null && !redirectCookie.get().getValue().isBlank()) {
 			try {
 				String decodedUri = new String(java.util.Base64.getUrlDecoder().decode(redirectCookie.get().getValue()), java.nio.charset.StandardCharsets.UTF_8);
-				// Basic security check: ensure it belongs to arqulat.com or localhost
-				if (decodedUri.matches("https?://([a-zA-Z0-9-]+\\.)*arqulat\\.com.*") || decodedUri.startsWith("http://localhost:")) {
+				
+				// Secure redirect validation to prevent Open Redirect attacks
+				java.net.URI uri = new java.net.URI(decodedUri);
+				String host = uri.getHost();
+				
+				boolean isLocalhost = "localhost".equals(host);
+				boolean isArqulatDomain = host != null && (host.equals("arqulat.com") || host.endsWith(".arqulat.com"));
+				
+				if (isLocalhost || (isArqulatDomain && "https".equalsIgnoreCase(uri.getScheme()))) {
 					targetUrl = decodedUri;
+				} else {
+					log.warn("Blocked potentially malicious redirect URI: {}", decodedUri);
 				}
-			} catch (IllegalArgumentException e) {
-				log.error("Failed to decode redirect_uri cookie", e);
+			} catch (Exception e) {
+				log.error("Failed to decode or parse redirect_uri cookie", e);
 			}
 		}
 

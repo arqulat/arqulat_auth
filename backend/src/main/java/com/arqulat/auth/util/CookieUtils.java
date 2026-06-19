@@ -32,7 +32,7 @@ public class CookieUtils {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setAttribute("SameSite", "None");
+        cookie.setAttribute("SameSite", "Lax");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
     }
