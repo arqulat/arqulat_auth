@@ -110,10 +110,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 		String targetUrl = frontendUrl;
 		java.util.Optional<jakarta.servlet.http.Cookie> redirectCookie = com.arqulat.auth.util.CookieUtils.getCookie(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME);
 		if (redirectCookie.isPresent() && redirectCookie.get().getValue() != null && !redirectCookie.get().getValue().isBlank()) {
-			String requestedRedirect = redirectCookie.get().getValue();
-			// Basic security check: ensure it belongs to arqulat.com or localhost
-			if (requestedRedirect.matches("https?://([a-zA-Z0-9-]+\\.)*arqulat\\.com.*") || requestedRedirect.startsWith("http://localhost:")) {
-				targetUrl = requestedRedirect;
+			try {
+				String decodedUri = new String(java.util.Base64.getUrlDecoder().decode(redirectCookie.get().getValue()), java.nio.charset.StandardCharsets.UTF_8);
+				// Basic security check: ensure it belongs to arqulat.com or localhost
+				if (decodedUri.matches("https?://([a-zA-Z0-9-]+\\.)*arqulat\\.com.*") || decodedUri.startsWith("http://localhost:")) {
+					targetUrl = decodedUri;
+				}
+			} catch (IllegalArgumentException e) {
+				log.error("Failed to decode redirect_uri cookie", e);
 			}
 		}
 
