@@ -5,7 +5,17 @@ import '../styles/Auth.css';
 const MainLogin = () => {
     const handleGoogleSignIn = () => {
         const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-        window.location.href = `${baseUrl}/oauth2/authorization/google`;
+        
+        // Forward the redirect_uri if it was passed from the client app (e.g. loom)
+        const params = new URLSearchParams(window.location.search);
+        const redirectUri = params.get('redirect_uri');
+        
+        let targetUrl = `${baseUrl}/oauth2/authorization/google`;
+        if (redirectUri) {
+            targetUrl += `?redirect_uri=${encodeURIComponent(redirectUri)}`;
+        }
+        
+        window.location.href = targetUrl;
     };
 
     return (
