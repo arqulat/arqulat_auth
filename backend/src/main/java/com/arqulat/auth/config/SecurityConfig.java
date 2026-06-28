@@ -50,7 +50,7 @@ public class SecurityConfig {
 				.exceptionHandling(customizer -> customizer
 						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+						.requestMatchers("/", "/oauth2/**", "/login/oauth2/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
